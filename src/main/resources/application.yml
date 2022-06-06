@@ -1,0 +1,60 @@
+server.port: 8080
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/baamoo
+
+telegram:
+  url: "https://api.telegram.org/bot${telegram.token}/"
+  token: "5468511146:AAHtG7yEydPb37On_UV3M_kmWzw-H5yXTfw" #${TELEGRAM_TOKEN}
+
+pages:
+  pageGraph: #Map<PageType, Map<String, String>>
+    MAIN:
+#      PROFILES_SETTINGS : "Профили"
+      CALC_LAMBING_DATE : "Подсчет дня окота(вывода)"
+      REMINDER : "Напоминания"
+    CALC_LAMBING_DATE:
+      EXPRESS_CALC: "Быстрый подсчет"
+    REMINDER:
+      REMINDERS_LIST: "Будущие напоминания"
+      CREATE_REMINDER: "Создать напоминание"
+    REMINDERS_LIST:
+      RETURN_TO_MAIN: "Готово"
+
+features:
+  featuresButtons: #Map<FeatureType, Map<Int, Map<String, String>>>
+    EXPRESS_CALC:
+      0:
+        CHICKEN: "Курица"
+        BOAT: "Коза"
+        GOOSE: "Гусь"
+        DUCK: "Утка"
+        COW: "Корова"
+      2:
+        RETURN_TO_MAIN: "Готово"
+        CREATE_REMINDER: "Сохранить результат"
+    CREATE_REMINDER:
+      2:
+        RETURN_TO_MAIN: "Готово"
+
+
+cerberus:
+  pageUpdateRules: #Map<PageType, List<UpdateType>>
+    MAIN: [CALLBACK_QUERY]
+    CALC_LAMBING_DATE: [CALLBACK_QUERY]
+    REMINDER: [CALLBACK_QUERY]
+    REMINDERS_LIST: [CALLBACK_QUERY]
+  featuresUpdateRules: #Map<FeatureType, Map<Int, List<UpdateType>>>
+    EXPRESS_CALC:
+      0: [CALLBACK_QUERY]
+      1: [MESSAGE]
+      2: [CALLBACK_QUERY]
+    CREATE_REMINDER:
+      0: [ MESSAGE ]
+      1: [ MESSAGE ]
+      2: [ CALLBACK_QUERY ]
+
+#  start - Открыть главную
+#  help - Показать все команды

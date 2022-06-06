@@ -1,0 +1,14 @@
+package org.baamoo.model
+
+enum class FeatureType {
+    SET_SPEC_BEAST_PROF,
+    SET_GROUP_BEAST_PROF,
+
+    EXPRESS_CALC,
+    PROFILE_CALC,
+
+    OPEN_REMINDER_LIST,
+    CREATE_REMINDER,
+    EDIT_REMINDER,
+    DELETE_REMINDER
+}
