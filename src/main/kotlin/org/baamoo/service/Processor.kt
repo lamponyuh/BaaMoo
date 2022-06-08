@@ -3,7 +3,6 @@ package org.baamoo.service
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.model.Update
 import com.pengrad.telegrambot.model.User
-import com.pengrad.telegrambot.model.request.InlineKeyboardButton
 import com.pengrad.telegrambot.request.GetUpdates
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope

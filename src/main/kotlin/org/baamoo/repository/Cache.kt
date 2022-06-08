@@ -1,7 +1,6 @@
 package org.baamoo.repository
 
 import com.pengrad.telegrambot.model.User
-import org.baamoo.model.State
 import org.springframework.stereotype.Service
 
 @Service

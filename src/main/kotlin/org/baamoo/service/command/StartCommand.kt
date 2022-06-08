@@ -1,11 +1,17 @@
 package org.baamoo.service.command
 
+import com.pengrad.telegrambot.model.User
+import org.baamoo.model.PageType
+import org.baamoo.model.PageType.*
+import org.baamoo.repository.State
 import org.baamoo.repository.UserRepository
+import org.baamoo.repository.UserSession
 import org.baamoo.repository.UserSessionRepository
 import org.baamoo.service.page.PageProducer
 import org.baamoo.service.page.page.MainPage
 import org.baamoo.service.update.message.MessageUpdate
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 
 @Component
 class StartCommand(
@@ -19,23 +25,29 @@ class StartCommand(
     }
 
     override suspend fun process(update: MessageUpdate) {
-        val session = userSessionRepository.findById(update.getUser().id())
-        if (session != null) {
-            pageProducer.delete(session.userId, session.sessionMessageId)
-            userSessionRepository.deleteById(update.getUser().id())
+        val user = update.getUser()
+        if (userRepository.findById(user.id()) == null) {
+            showPreview(update.getUser())
+            userRepository.save(user)
         }
 
-        val user = userRepository.findById(update.getUser().id())
-        pageProducer.delete(update)
-        if (user != null) {
-            mainPage.initiate(update)
-            return
-        } else {
-            pageProducer.sendMessage(update.getUser(), PREVIEW_MESSAGE)
-            mainPage.initiate(update)
-            userRepository.save(update.getUser())
-            return
+        val session = userSessionRepository.findById(update.getUser().id())
+
+        if (session?.sessionMessageId != null) {
+            pageProducer.delete(session.userId, session.sessionMessageId)
         }
+
+        userSessionRepository.save(UserSession(
+            userId = user.id(),
+            state = State(MAIN),
+            expiredTime = LocalDateTime.now().plusMinutes(10)
+        ))
+        pageProducer.delete(update)
+        mainPage.initiate(update)
+    }
+
+    private suspend fun showPreview(user: User) {
+        pageProducer.sendMessage(user, PREVIEW_MESSAGE)
     }
 
     companion object{

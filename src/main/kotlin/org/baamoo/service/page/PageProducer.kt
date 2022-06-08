@@ -47,12 +47,16 @@ class PageProducer(
         editMessage(update, text, getFeatureKeyboard(featureType, index))
     }
 
+    suspend fun editPage(userId: Long, messageId: Int, pageType: PageType, text: String) {
+        editMessage(userId, messageId, text, getPageKeyboard(pageType))
+    }
+
     suspend fun editPage(user: User, messageId: Int, pageType: PageType, text: String) {
-        editMessage(user, messageId, text, getPageKeyboard(pageType))
+        editMessage(user.id(), messageId, text, getPageKeyboard(pageType))
     }
 
     suspend fun editPage(user: User, messageId: Int, featureType: FeatureType, index: Int, text: String) {
-        editMessage(user, messageId, text, getFeatureKeyboard(featureType, index))
+        editMessage(user.id(), messageId, text, getFeatureKeyboard(featureType, index))
     }
 
     suspend fun delete(update: AbstractUpdate) {
@@ -85,8 +89,8 @@ class PageProducer(
             .replyMarkup(InlineKeyboardMarkup))
     }
 
-    private suspend fun editMessage(user: User, messageId: Int, text: String, InlineKeyboardMarkup: InlineKeyboardMarkup?) {
-        bot.execute(EditMessageText(user.id(), messageId, text)
+    private suspend fun editMessage(userId: Long, messageId: Int, text: String, InlineKeyboardMarkup: InlineKeyboardMarkup?) {
+        bot.execute(EditMessageText(userId, messageId, text)
             .replyMarkup(InlineKeyboardMarkup))
     }
 

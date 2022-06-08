@@ -1,6 +1,6 @@
 package org.baamoo.service.page
 
-import org.baamoo.model.State
+import org.baamoo.repository.UserSession
 import org.baamoo.service.update.AbstractUpdate
 import org.springframework.stereotype.Service
 
@@ -12,13 +12,13 @@ class PageController(
 
     suspend fun findPage(update: AbstractUpdate) : AbstractPage {
         return if (userInFeature(update.currentPosition())) {
-            featureRegister.get(update.currentPosition()?.feature!!)
+            featureRegister.get(update.currentPosition()?.state?.feature!!)
         } else {
-            pageRegister.get(update.currentPosition()?.page)
+            pageRegister.get(update.currentPosition()?.state?.page)
         }
     }
 
-    suspend fun userInFeature(state: State?) : Boolean {
-        return state?.feature != null
+    suspend fun userInFeature(state: UserSession?) : Boolean {
+        return state?.state?.feature != null
     }
 }

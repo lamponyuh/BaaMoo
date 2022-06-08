@@ -3,7 +3,7 @@ package org.baamoo.service.update
 import com.pengrad.telegrambot.model.Message
 import com.pengrad.telegrambot.model.Update
 import com.pengrad.telegrambot.model.User
-import org.baamoo.model.State
+import org.baamoo.repository.UserSession
 
 abstract class AbstractUpdate(
     private val update: Update,
@@ -12,13 +12,13 @@ abstract class AbstractUpdate(
 ) {
     private val updateId: Int = update.updateId()
 
-    private var currentPosition: State? = null
+    private var currentPosition: UserSession? = null
 
-    suspend fun setCurrentPosition(state: State?) {
+    suspend fun setCurrentPosition(state: UserSession?) {
         currentPosition = state
     }
 
-    suspend fun currentPosition() : State? {
+    suspend fun currentPosition() : UserSession? {
         return currentPosition
     }
 

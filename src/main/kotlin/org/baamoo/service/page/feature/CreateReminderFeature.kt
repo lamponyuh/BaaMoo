@@ -1,15 +1,15 @@
 package org.baamoo.service.page.feature
 
 import com.pengrad.telegrambot.model.User
-import org.baamoo.repository.Cache
-import org.baamoo.repository.Reminder
 import org.baamoo.repository.feature.CreateReminderEntity
 import org.baamoo.repository.feature.CreateReminderRepository
 import org.baamoo.model.FeatureType.CREATE_REMINDER
 import org.baamoo.model.PageType
 import org.baamoo.model.PageType.REMINDER
-import org.baamoo.model.State
+import org.baamoo.repository.Reminder
 import org.baamoo.repository.ReminderRepository
+import org.baamoo.repository.State
+import org.baamoo.repository.UserSessionRepository
 import org.baamoo.service.page.Feature
 import org.baamoo.service.page.FeatureRegister
 import org.baamoo.service.page.PageProducer
@@ -17,12 +17,13 @@ import org.baamoo.service.update.AbstractUpdate
 import org.springframework.stereotype.Component
 import java.time.DateTimeException
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.annotation.PostConstruct
 
 @Component
 class CreateReminderFeature(
-    private val cache: Cache,
+    private val userSessionRepository: UserSessionRepository,
     private val pageProducer: PageProducer,
     private val featureRegister: FeatureRegister,
     private val reminderRepository: ReminderRepository,
@@ -36,8 +37,7 @@ class CreateReminderFeature(
 
     override suspend fun process(update: AbstractUpdate) {
         val message = update.getMessage().text()
-        val currentState = cache.get(update.getUser())
-        when(currentState?.position) {
+        when(userSessionRepository.findById(update.getUser().id())?.state?.position) {
             INPUT_DATE -> {
                 val note = createReminderRepository.findById(update.getUser().id())
 
@@ -92,13 +92,22 @@ class CreateReminderFeature(
     }
 
     override suspend fun updateState(user: User, state: State): State {
-        cache.put(user, state)
+        val currentSession = userSessionRepository.findById(user.id())
+        userSessionRepository.save(currentSession?.copy(
+            state = state,
+            expiredTime = LocalDateTime.now().plusMinutes(10))!!)
         return state
     }
 
     override suspend fun updateOnNewState(update: AbstractUpdate): State {
+        val currentSession = userSessionRepository.findById(update.getUser().id())
         val newState = State(REMINDER, CREATE_REMINDER, INPUT_DATE)
-        cache.put(update.getUser(), newState)
+
+        userSessionRepository.save(currentSession!!.copy(
+            expiredTime = LocalDateTime.now().plusMinutes(10),
+            state = newState
+        ))
+
         return newState
     }
 
@@ -115,6 +124,10 @@ class CreateReminderFeature(
     }
 
     override suspend fun getStartText(update: AbstractUpdate): String {
+        return getStartText()
+    }
+
+    override suspend fun getStartText(): String {
         return INSERT_DATE_START_TEXT
     }
 

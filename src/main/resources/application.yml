@@ -7,7 +7,7 @@ spring:
 
 telegram:
   url: "https://api.telegram.org/bot${telegram.token}/"
-  token: "5468511146:AAHtG7yEydPb37On_UV3M_kmWzw-H5yXTfw" #${TELEGRAM_TOKEN}
+  token: ${TELEGRAM_TOKEN}
 
 pages:
   pageGraph: #Map<PageType, Map<String, String>>

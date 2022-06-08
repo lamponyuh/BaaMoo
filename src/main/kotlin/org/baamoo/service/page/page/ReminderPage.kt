@@ -2,13 +2,14 @@ package org.baamoo.service.page.page
 
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
-import org.baamoo.repository.Cache
 import org.baamoo.model.FeatureType
 import org.baamoo.model.FeatureType.CREATE_REMINDER
 import org.baamoo.model.PageType
 import org.baamoo.model.PageType.REMINDER
-import org.baamoo.model.State
 import org.baamoo.repository.ReminderRepository
+import org.baamoo.repository.State
+import org.baamoo.repository.UserSession
+import org.baamoo.repository.UserSessionRepository
 import org.baamoo.service.page.Page
 import org.baamoo.service.page.PageProducer
 import org.baamoo.service.page.PageRegister
@@ -16,6 +17,7 @@ import org.baamoo.service.update.AbstractUpdate
 import org.springframework.stereotype.Component
 import java.text.MessageFormat
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.annotation.PostConstruct
 
@@ -23,7 +25,7 @@ import javax.annotation.PostConstruct
 class ReminderPage(
     private val pageRegister: PageRegister,
     private val pageProducer: PageProducer,
-    private val cache: Cache,
+    private val userSessionRepository: UserSessionRepository,
     private val reminderRepository: ReminderRepository,
 ) : Page() {
 
@@ -49,8 +51,14 @@ class ReminderPage(
     }
 
     override suspend fun updateOnNewState(update: AbstractUpdate): State {
+        val currentSession = userSessionRepository.findById(update.getUser().id())
         val newState = State(REMINDER)
-        cache.put(update.getUser(), newState)
+
+        userSessionRepository.save(currentSession!!.copy(
+            expiredTime = LocalDateTime.now().plusMinutes(10),
+            state = newState
+        ))
+
         return newState
     }
 
@@ -72,6 +80,10 @@ class ReminderPage(
             EMPTY_TEXT
         } else
             MessageFormat.format(TEXT_WITH_FIRST_REMINDER, reminders.first().name, reminders.first().date.format(FORMATTER))
+    }
+
+    override suspend fun getStartText(): String {
+        TODO("Not yet implemented")
     }
 
     companion object{

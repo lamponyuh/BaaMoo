@@ -1,8 +1,9 @@
 package org.baamoo.service
 
-import org.baamoo.repository.Cache
-import org.baamoo.model.State
 import org.baamoo.property.CerberusProperties
+import org.baamoo.repository.UserSession
+import org.baamoo.repository.UserSessionRepository
+import org.baamoo.service.page.PageProducer
 import org.baamoo.service.update.message.MessageUpdate
 import org.baamoo.service.update.AbstractUpdate
 import org.baamoo.service.update.UpdateExecutor
@@ -12,11 +13,12 @@ import org.springframework.stereotype.Service
 @Service
 class Cerberus(
     private val cerberusProperties: CerberusProperties,
-    private val cache: Cache,
+    private val userSessionRepository: UserSessionRepository,
+    private val pageProducer: PageProducer,
 ) {
 
     suspend fun check(update: AbstractUpdate, executor: UpdateExecutor) {
-        val currentState = cache.get(update.getUser())
+        val currentState = userSessionRepository.findById(update.getUser().id())
         update.setCurrentPosition(currentState)
 
         if (isCommandMessage(update)) {
@@ -27,6 +29,15 @@ class Cerberus(
         if (stateNotExists(currentState)) {
             executor.executeStartState(update)
             return
+        }
+
+        val messageId = update.getMessage().messageId()
+
+        if (currentState?.sessionMessageId != null && messageId != currentState.sessionMessageId) {
+            if (update.getType() != MESSAGE) {
+                pageProducer.delete(update)
+                return
+            }
         }
 
         if (checkStatePassed(update, currentState)) {
@@ -46,29 +57,29 @@ class Cerberus(
         return false
     }
 
-    private suspend fun stateNotExists(currentState: State?): Boolean {
+    private suspend fun stateNotExists(currentState: UserSession?): Boolean {
         if (currentState == null) return true
         return false
     }
 
-    private suspend fun checkStatePassed(update: AbstractUpdate, currentState: State?): Boolean {
+    private suspend fun checkStatePassed(update: AbstractUpdate, currentState: UserSession?): Boolean {
         currentState ?: throw NullPointerException()
 
-        return if (currentState.feature == null) {
+        return if (currentState.state.feature == null) {
             pagePassed(update, currentState)
         } else {
             featurePassed(update, currentState)
         }
     }
 
-    private suspend fun pagePassed(update: AbstractUpdate, currentState: State): Boolean {
-        val allowedUpdates = cerberusProperties.pageUpdateRules.get(currentState.page) ?: throw NullPointerException()
+    private suspend fun pagePassed(update: AbstractUpdate, currentState: UserSession): Boolean {
+        val allowedUpdates = cerberusProperties.pageUpdateRules.get(currentState.state.page)!!
         return allowedUpdates.contains(update.getType())
     }
 
-    private suspend fun featurePassed(update: AbstractUpdate, currentState: State): Boolean {
-        val currentFeature = cerberusProperties.featuresUpdateRules.get(currentState.feature) ?: throw NullPointerException()
-        val allowedUpdates = currentFeature.get(currentState.position) ?: throw NullPointerException()
+    private suspend fun featurePassed(update: AbstractUpdate, currentState: UserSession): Boolean {
+        val currentFeature = cerberusProperties.featuresUpdateRules.get(currentState.state.feature)!!
+        val allowedUpdates = currentFeature.get(currentState.state.position)!!
         return allowedUpdates.contains(update.getType())
     }
 }

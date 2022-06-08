@@ -2,7 +2,7 @@ package org.baamoo.service.page
 
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import org.baamoo.model.State
+import org.baamoo.repository.State
 import org.baamoo.service.update.AbstractUpdate
 
 abstract class AbstractPage {
@@ -23,4 +23,5 @@ abstract class AbstractPage {
     abstract suspend fun render(update: AbstractUpdate)
     abstract suspend fun renderEdit(update: AbstractUpdate)
     abstract suspend fun getStartText(update: AbstractUpdate) : String
+    abstract suspend fun getStartText() : String
 }

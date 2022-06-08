@@ -1,13 +1,14 @@
 package org.baamoo.service.page.feature
 
 import com.pengrad.telegrambot.model.User
-import org.baamoo.repository.Cache
 import org.baamoo.repository.feature.ExpressCalcEntity
 import org.baamoo.model.BeastType
 import org.baamoo.model.FeatureType.EXPRESS_CALC
 import org.baamoo.model.PageType.CALC_LAMBING_DATE
 import org.baamoo.model.PageType.MAIN
-import org.baamoo.model.State
+import org.baamoo.repository.State
+import org.baamoo.repository.UserSession
+import org.baamoo.repository.UserSessionRepository
 import org.baamoo.repository.feature.ExpressCalcRepository
 import org.baamoo.service.page.Feature
 import org.baamoo.service.page.FeatureRegister
@@ -17,13 +18,14 @@ import org.springframework.stereotype.Component
 import java.text.MessageFormat
 import java.time.DateTimeException
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.annotation.PostConstruct
 
 @Component
 class ExpressCalcFeature(
     private val featureRegister: FeatureRegister,
-    private val cache: Cache,
+    private val userSessionRepository: UserSessionRepository,
     private val pageProducer: PageProducer,
     private val expressCalcRepository: ExpressCalcRepository,
 ) : Feature() {
@@ -34,8 +36,8 @@ class ExpressCalcFeature(
     }
 
     override suspend fun process(update: AbstractUpdate) {
-        val currentState = cache.get(update.getUser())
-        when (currentState?.position) {
+        val currentState = userSessionRepository.findById(update.getUser().id())?.state!!
+        when (currentState.position) {
             CHOSE_BEAST -> {
                 val callbackQuery = update.update().callbackQuery()
                 expressCalcRepository.save(ExpressCalcEntity(
@@ -82,13 +84,22 @@ class ExpressCalcFeature(
     }
 
     override suspend fun updateState(user: User, state: State) : State {
-        cache.put(user, state)
+        val currentSession = userSessionRepository.findById(user.id())!!
+        userSessionRepository.save(currentSession.copy(
+            state = state,
+            expiredTime = LocalDateTime.now().plusMinutes(10)))
         return state
     }
 
     override suspend fun updateOnNewState(update: AbstractUpdate): State {
+        val currentSession = userSessionRepository.findById(update.getUser().id())
         val newState = State(CALC_LAMBING_DATE, EXPRESS_CALC, CHOSE_BEAST)
-        cache.put(update.getUser(), newState)
+
+        userSessionRepository.save(currentSession!!.copy(
+            expiredTime = LocalDateTime.now().plusMinutes(10),
+            state = newState
+        ))
+
         return newState
     }
 
@@ -101,6 +112,10 @@ class ExpressCalcFeature(
     }
 
     override suspend fun getStartText(update: AbstractUpdate): String {
+        return getStartText()
+    }
+
+    override suspend fun getStartText(): String {
         return START_TEXT
     }
 
