@@ -16,8 +16,7 @@ class SessionProcessor(
 ) {
 
     suspend fun clearExpiredSessions() {
-        val expiredSessions = userSessionRepository.findAll()
-            .filter { LocalDateTime.now().isAfter(it.expiredTime) }
+        val expiredSessions = userSessionRepository.findAllByExpiredTimeBefore(LocalDateTime.now())
             .filter { it.sessionMessageId != null }
             .filter { it.state.page != MAIN }
         expiredSessions.toList().forEach{

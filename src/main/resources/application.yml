@@ -3,7 +3,10 @@ server.port: 8080
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/baamoo
+#      uri: mongodb://localhost:27017/baamoo
+      host: mongo_baamoo
+      port: 27017
+      database: baamoo
 
 telegram:
   url: "https://api.telegram.org/bot${telegram.token}/"

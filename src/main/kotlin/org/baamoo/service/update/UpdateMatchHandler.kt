@@ -29,7 +29,7 @@ class UpdateMatchHandler(
         return usersMap
     }
 
-    private suspend fun matchUpdate(update: Update) : AbstractUpdate? {
+    suspend fun matchUpdate(update: Update) : AbstractUpdate? {
         for (matcher in updateMatcherList) {
             if (matcher.checkExist(update)) {
                 return matcher.getUpdateClass(update)

@@ -32,6 +32,10 @@ class Processor(
         }
     }
 
+    suspend fun processV2(update: Update) {
+        updateMatchHandler.matchUpdate(update)?.execute() ?: return
+    }
+
     private suspend fun getLastUpdates(users: HashMap<User, LinkedList<AbstractUpdate>>): List<AbstractUpdate> {
         val list = ArrayList<AbstractUpdate>()
 
