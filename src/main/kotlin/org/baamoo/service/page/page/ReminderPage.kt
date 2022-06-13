@@ -1,14 +1,14 @@
 package org.baamoo.service.page.page
 
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import org.baamoo.model.FeatureType
 import org.baamoo.model.FeatureType.CREATE_REMINDER
 import org.baamoo.model.PageType
 import org.baamoo.model.PageType.REMINDER
+import org.baamoo.repository.Reminder
 import org.baamoo.repository.ReminderRepository
 import org.baamoo.repository.State
-import org.baamoo.repository.UserSession
 import org.baamoo.repository.UserSessionRepository
 import org.baamoo.service.page.Page
 import org.baamoo.service.page.PageProducer
@@ -71,27 +71,33 @@ class ReminderPage(
     }
 
     override suspend fun getStartText(update: AbstractUpdate): String {
-        val reminders = reminderRepository.findByUserId(update.getUser().id())
-            .filter { it.date.isAfter(LocalDate.now()) }
+        val reminders = reminderRepository.findByUserIdAndDateAfterOrderByDate(update.getUser().id(), LocalDate.now())
+            .take(3)
             .toList()
-            .sortedBy { it.date }
 
         return if (reminders.isEmpty()) {
             EMPTY_TEXT
-        } else
-            MessageFormat.format(TEXT_WITH_FIRST_REMINDER, reminders.first().name, reminders.first().date.format(FORMATTER))
+        } else {
+            val remindersText = reminders.toText()
+            TEXT_WITH_FIRST_REMINDER + remindersText
+        }
     }
 
     override suspend fun getStartText(): String {
         TODO("Not yet implemented")
     }
 
+    private fun List<Reminder>.toText() : String {
+        var result = ""
+        this.forEach{ result += MessageFormat.format(REMINDER_FORMAT, it.name, it.date.format(DATE_FORMATTER)) }
+        return result
+    }
+
     companion object{
-        val FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+        val DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
         const val EMPTY_TEXT = "Ты можешь управлять своими напоминаниями. Пока не создано ни одного напоминания!"
-
-        const val TEXT_WITH_FIRST_REMINDER = "Ты можешь управлять своими напоминаниями. Кстати, вот ближайшее:\n\n" +
-                "\"{0}\" - {1}\n\n"
+        const val TEXT_WITH_FIRST_REMINDER = "Ты можешь управлять своими напоминаниями. Кстати, вот ближайшие:\n\n"
+        const val REMINDER_FORMAT = "\"{0}\" - {1}\n\n"
     }
 }
