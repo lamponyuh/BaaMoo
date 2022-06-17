@@ -8,28 +8,36 @@ spring:
       host: mongo_baamoo
       port: 27017
       database: baamoo
+      username: ${DB_USER}
+      password: ${DB_PWD}
 
 telegram:
   url: "https://api.telegram.org/bot${telegram.token}/"
   token: ${TELEGRAM_TOKEN}
 
 pages:
-  pageGraph: #Map<PageType, Map<String, String>>
+  pageButtons: #Map<PageType, Map<String, String>>
     MAIN:
 #      PROFILES_SETTINGS : "Профили"
       CALC_LAMBING_DATE : "Подсчет дня окота(вывода)"
       REMINDER : "Напоминания"
+      CALC_FEED : "Подсчет корма"
+#    PROFILES_SETTINGS :
+#      GROUP_PROFILES : "Профили группы"
+#      SINGLE_PROFILES : "Профили для одного"
     CALC_LAMBING_DATE:
-      EXPRESS_CALC: "Быстрый подсчет"
+      EXPRESS_CALC_LAMBING_DATE: "Быстрый подсчет"
     REMINDER:
-      REMINDERS_LIST: "Будущие напоминания"
+#      REMINDERS_LIST: "Будущие напоминания"
       CREATE_REMINDER: "Создать напоминание"
+    CALC_FEED :
+      EXPRESS_CALC_FEED : "Быстрый подсчет"
     REMINDERS_LIST:
       RETURN_TO_MAIN: "Готово"
 
 features:
   featuresButtons: #Map<FeatureType, Map<Int, Map<String, String>>>
-    EXPRESS_CALC:
+    EXPRESS_CALC_LAMBING_DATE:
       0:
         CHICKEN: "Курица"
         BOAT: "Коза"
@@ -42,16 +50,28 @@ features:
     CREATE_REMINDER:
       2:
         RETURN_TO_MAIN: "Готово"
-
+    EXPRESS_CALC_FEED:
+      0:
+        7: "Неделя (7 дней)"
+        30: "Месяц (30 дней)"
+        183: "Пол года (183 дня)"
+        365: "Год (365 дня)"
+      2:
+        CALC: "Посчитать"
+        MORE: "Добавить еще"
+      3:
+        RETURN_TO_MAIN: "Готово"
 
 cerberus:
   pageUpdateRules: #Map<PageType, List<UpdateType>>
     MAIN: [CALLBACK_QUERY]
+#    PROFILES_SETTINGS: [CALLBACK_QUERY]
     CALC_LAMBING_DATE: [CALLBACK_QUERY]
     REMINDER: [CALLBACK_QUERY]
+    CALC_FEED: [CALLBACK_QUERY]
     REMINDERS_LIST: [CALLBACK_QUERY]
   featuresUpdateRules: #Map<FeatureType, Map<Int, List<UpdateType>>>
-    EXPRESS_CALC:
+    EXPRESS_CALC_LAMBING_DATE:
       0: [CALLBACK_QUERY]
       1: [MESSAGE]
       2: [CALLBACK_QUERY]
@@ -59,6 +79,11 @@ cerberus:
       0: [ MESSAGE ]
       1: [ MESSAGE ]
       2: [ CALLBACK_QUERY ]
+    EXPRESS_CALC_FEED:
+      0: [ CALLBACK_QUERY, MESSAGE ]
+      1: [ MESSAGE ]
+      2: [ CALLBACK_QUERY ]
+      3: [ CALLBACK_QUERY ]
 
 #  start - Открыть главную
 #  help - Показать все команды

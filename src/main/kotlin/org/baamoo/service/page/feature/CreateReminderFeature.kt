@@ -44,7 +44,7 @@ class CreateReminderFeature(
                 val date: LocalDate
 
                 try {
-                    date = LocalDate.parse(message, ExpressCalcFeature.FORMATTER)
+                    date = LocalDate.parse(message, FORMATTER)
                 } catch (e: DateTimeException) {
                     pageProducer.delete(update)
                     pageProducer.editPage(update.getUser(), note?.messageId!!, CREATE_REMINDER, INPUT_DATE, ERROR_DATE_TEXT)

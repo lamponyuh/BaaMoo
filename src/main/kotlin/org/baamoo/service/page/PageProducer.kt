@@ -95,7 +95,7 @@ class PageProducer(
     }
 
     private suspend fun getPageKeyboard(pageType: PageType) : InlineKeyboardMarkup? {
-        val buttons = pagesProperties.pageGraph.get(pageType)
+        val buttons = pagesProperties.pageButtons.get(pageType)
         if (buttons?.isNotEmpty()!!) {
             return getKeyboard(buttons)
         }

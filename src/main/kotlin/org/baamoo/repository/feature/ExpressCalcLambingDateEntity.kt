@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDate
 
 @Document("expressCalcEntity")
-data class ExpressCalcEntity(
+data class ExpressCalcLambingDateEntity(
 
     @Id
     val userId: Long,

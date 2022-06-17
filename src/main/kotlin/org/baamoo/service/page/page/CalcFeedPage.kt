@@ -1,11 +1,9 @@
 package org.baamoo.service.page.page
 
+import org.baamoo.model.FeatureType
+import org.baamoo.model.FeatureType.EXPRESS_CALC_FEED
 import org.baamoo.model.PageType
 import org.baamoo.model.PageType.CALC_FEED
-import org.baamoo.model.PageType.CALC_LAMBING_DATE
-import org.baamoo.model.PageType.MAIN
-import org.baamoo.model.PageType.PROFILES_SETTINGS
-import org.baamoo.model.PageType.REMINDER
 import org.baamoo.repository.State
 import org.baamoo.repository.UserSessionRepository
 import org.baamoo.service.page.Page
@@ -17,52 +15,35 @@ import java.time.LocalDateTime
 import javax.annotation.PostConstruct
 
 @Component
-class MainPage(
+class CalcFeedPage(
     private val pageProducer: PageProducer,
     private val pageRegister: PageRegister,
     private val userSessionRepository: UserSessionRepository
-) : Page() {
+) : Page()  {
 
     @PostConstruct
     override fun register() {
-        pageRegister.mainPage = this
+        pageRegister.calcFeedPage = this
     }
 
     override suspend fun process(update: AbstractUpdate) {
         val updateData = update.update().callbackQuery().data()
 
-        when(PageType.valueOf(updateData)) {
-//            PROFILES_SETTINGS -> {
-//                setSessionMessageId(update)
-//                pageProducer.open(update, CALC_LAMBING_DATE)
-//            }
-            CALC_LAMBING_DATE -> {
-                setSessionMessageId(update)
-                pageProducer.open(update, CALC_LAMBING_DATE)
+        if (isPage(updateData)) {
+            when(PageType.valueOf(updateData)) {
+                else -> {}
             }
-            CALC_FEED -> {
-                setSessionMessageId(update)
-                pageProducer.open(update, CALC_FEED)
+        } else {
+            when(FeatureType.valueOf(updateData)) {
+                EXPRESS_CALC_FEED -> pageProducer.open(update, EXPRESS_CALC_FEED)
+                else -> {}
             }
-            REMINDER -> {
-                setSessionMessageId(update)
-                pageProducer.open(update, REMINDER)
-            }
-            else -> {}
         }
-    }
-
-    private suspend fun setSessionMessageId(update: AbstractUpdate) {
-        val currentSession = userSessionRepository.findById(update.getUser().id())
-        userSessionRepository.save(currentSession!!.copy(
-            sessionMessageId = update.getMessage().messageId(),
-            expiredTime = LocalDateTime.now().plusMinutes(10),
-        ))
     }
 
     override suspend fun updateOnNewState(update: AbstractUpdate): State {
         val currentSession = userSessionRepository.findById(update.getUser().id())
-        val newState = State(MAIN)
+        val newState = State(CALC_FEED)
 
         userSessionRepository.save(currentSession!!.copy(
             expiredTime = LocalDateTime.now().plusMinutes(10),
@@ -73,11 +54,11 @@ class MainPage(
     }
 
     override suspend fun render(update: AbstractUpdate) {
-        pageProducer.renderPage(update, MAIN, getStartText(update))
+        pageProducer.renderPage(update, CALC_FEED, getStartText(update))
     }
 
     override suspend fun renderEdit(update: AbstractUpdate) {
-        pageProducer.editPage(update, MAIN, getStartText(update))
+        pageProducer.editPage(update, CALC_FEED, getStartText(update))
     }
 
     override suspend fun getStartText(update: AbstractUpdate): String {
@@ -89,6 +70,6 @@ class MainPage(
     }
 
     companion object{
-        const val TEXT = "Ниже представлены функции, которыми ты можешь воспользоваться:"
+        const val TEXT = "Тут ты можешь подсчитать количество и стоимость корма на определенный период.\nКаким образом будем считать?"
     }
 }

@@ -1,16 +1,14 @@
 package org.baamoo.service.page.page
 
 import org.baamoo.model.FeatureType
-import org.baamoo.model.FeatureType.EXPRESS_CALC
+import org.baamoo.model.FeatureType.EXPRESS_CALC_LAMBING_DATE
 import org.baamoo.model.PageType
 import org.baamoo.model.PageType.CALC_LAMBING_DATE
 import org.baamoo.repository.State
-import org.baamoo.repository.UserSession
 import org.baamoo.repository.UserSessionRepository
 import org.baamoo.service.page.Page
 import org.baamoo.service.page.PageProducer
 import org.baamoo.service.page.PageRegister
-import org.baamoo.service.page.feature.ExpressCalcFeature
 import org.baamoo.service.update.AbstractUpdate
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
@@ -37,7 +35,7 @@ class CalcLambingDatePage(
             }
         } else {
             when(FeatureType.valueOf(updateData)) {
-                EXPRESS_CALC -> pageProducer.open(update, EXPRESS_CALC)
+                EXPRESS_CALC_LAMBING_DATE -> pageProducer.open(update, EXPRESS_CALC_LAMBING_DATE)
                 else -> {}
             }
         }

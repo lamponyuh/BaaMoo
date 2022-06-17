@@ -1,15 +1,14 @@
 package org.baamoo.service.page.feature
 
 import com.pengrad.telegrambot.model.User
-import org.baamoo.repository.feature.ExpressCalcEntity
+import org.baamoo.repository.feature.ExpressCalcLambingDateEntity
 import org.baamoo.model.BeastType
-import org.baamoo.model.FeatureType.EXPRESS_CALC
+import org.baamoo.model.FeatureType.EXPRESS_CALC_LAMBING_DATE
 import org.baamoo.model.PageType.CALC_LAMBING_DATE
 import org.baamoo.model.PageType.MAIN
 import org.baamoo.repository.State
-import org.baamoo.repository.UserSession
 import org.baamoo.repository.UserSessionRepository
-import org.baamoo.repository.feature.ExpressCalcRepository
+import org.baamoo.repository.feature.ExpressCalcLambingDateRepository
 import org.baamoo.service.page.Feature
 import org.baamoo.service.page.FeatureRegister
 import org.baamoo.service.page.PageProducer
@@ -23,16 +22,16 @@ import java.time.format.DateTimeFormatter
 import javax.annotation.PostConstruct
 
 @Component
-class ExpressCalcFeature(
+class ExpressCalcLambingDateFeature(
     private val featureRegister: FeatureRegister,
     private val userSessionRepository: UserSessionRepository,
     private val pageProducer: PageProducer,
-    private val expressCalcRepository: ExpressCalcRepository,
+    private val expressCalcLambingDateRepository: ExpressCalcLambingDateRepository,
 ) : Feature() {
 
     @PostConstruct
     override fun register() {
-        featureRegister.expressCalcFeature = this
+        featureRegister.expressCalcLambingDateFeature = this
     }
 
     override suspend fun process(update: AbstractUpdate) {
@@ -40,17 +39,17 @@ class ExpressCalcFeature(
         when (currentState.position) {
             CHOSE_BEAST -> {
                 val callbackQuery = update.update().callbackQuery()
-                expressCalcRepository.save(ExpressCalcEntity(
+                expressCalcLambingDateRepository.save(ExpressCalcLambingDateEntity(
                     userId = update.getUser().id(),
                     beastType = BeastType.valueOf(callbackQuery.data()),
                     messageId = callbackQuery.message().messageId()
                 ))
-                pageProducer.editPage(update, EXPRESS_CALC, INPUT_DATE, INPUT_DATE_TEXT)
-                updateState(update.getUser(), State(CALC_LAMBING_DATE, EXPRESS_CALC, INPUT_DATE))
+                pageProducer.editPage(update, EXPRESS_CALC_LAMBING_DATE, INPUT_DATE, INPUT_DATE_TEXT)
+                updateState(update.getUser(), State(CALC_LAMBING_DATE, EXPRESS_CALC_LAMBING_DATE, INPUT_DATE))
             }
             INPUT_DATE -> {
                 val userDate = update.update().message().text()
-                val note = expressCalcRepository.findById(update.getUser().id())!!
+                val note = expressCalcLambingDateRepository.findById(update.getUser().id())!!
                 val gestation = note.beastType.gestation.toLong()
                 val gestationDate: LocalDate
 
@@ -58,23 +57,23 @@ class ExpressCalcFeature(
                     gestationDate = LocalDate.parse(userDate, FORMATTER).plusDays(gestation)
                 } catch (e: DateTimeException) {
                     pageProducer.delete(update)
-                    pageProducer.editPage(update.getUser(), note.messageId, EXPRESS_CALC, INPUT_DATE, ERROR_DATE_TEXT)
+                    pageProducer.editPage(update.getUser(), note.messageId, EXPRESS_CALC_LAMBING_DATE, INPUT_DATE, ERROR_DATE_TEXT)
                     return
                 }
 
                 note.date = gestationDate
-                expressCalcRepository.save(note)
+                expressCalcLambingDateRepository.save(note)
 
                 pageProducer.delete(update)
-                pageProducer.editPage(update.getUser(), note.messageId, EXPRESS_CALC, FINAL,
+                pageProducer.editPage(update.getUser(), note.messageId, EXPRESS_CALC_LAMBING_DATE, FINAL,
                     MessageFormat.format(FINAL_TEXT, note.beastType.title, userDate, gestationDate.format(FORMATTER)))
-                updateState(update.getUser(), State(CALC_LAMBING_DATE, EXPRESS_CALC, FINAL))
+                updateState(update.getUser(), State(CALC_LAMBING_DATE, EXPRESS_CALC_LAMBING_DATE, FINAL))
             }
             FINAL -> {
                 when(update.update().callbackQuery().data()) {
                     "RETURN_TO_MAIN" -> pageProducer.open(update, MAIN)
                     "CREATE_REMINDER" -> {
-                        val note = expressCalcRepository.findById(update.getUser().id())!!
+                        val note = expressCalcLambingDateRepository.findById(update.getUser().id())!!
                         featureRegister.createReminderFeature?.initiateWithDate(update, note.date!!)
                     }
                     else -> {}
@@ -93,7 +92,7 @@ class ExpressCalcFeature(
 
     override suspend fun updateOnNewState(update: AbstractUpdate): State {
         val currentSession = userSessionRepository.findById(update.getUser().id())
-        val newState = State(CALC_LAMBING_DATE, EXPRESS_CALC, CHOSE_BEAST)
+        val newState = State(CALC_LAMBING_DATE, EXPRESS_CALC_LAMBING_DATE, CHOSE_BEAST)
 
         userSessionRepository.save(currentSession!!.copy(
             expiredTime = LocalDateTime.now().plusMinutes(10),
@@ -104,11 +103,11 @@ class ExpressCalcFeature(
     }
 
     override suspend fun render(update: AbstractUpdate) {
-        pageProducer.renderPage(update, EXPRESS_CALC, CHOSE_BEAST, getStartText(update))
+        pageProducer.renderPage(update, EXPRESS_CALC_LAMBING_DATE, CHOSE_BEAST, getStartText(update))
     }
 
     override suspend fun renderEdit(update: AbstractUpdate) {
-        pageProducer.editPage(update, EXPRESS_CALC, CHOSE_BEAST, getStartText(update))
+        pageProducer.editPage(update, EXPRESS_CALC_LAMBING_DATE, CHOSE_BEAST, getStartText(update))
     }
 
     override suspend fun getStartText(update: AbstractUpdate): String {

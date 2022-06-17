@@ -4,5 +4,7 @@ enum class PageType {
     MAIN,
     CALC_LAMBING_DATE,
     REMINDER,
-    REMINDERS_LIST
+    CALC_FEED,
+    REMINDERS_LIST,
+    PROFILES_SETTINGS
 }

@@ -28,7 +28,7 @@ class CommandController(
     }
 
     companion object{
-        const val COMMAND_LIST_TEXT = "Список комманд:\n\n" +
+        const val COMMAND_LIST_TEXT = "Список комманд (если мешает, просто удалите это сообщение):\n\n" +
                 "/start - Открыть главную\n\n" +
                 "/help - Показать все команды\n\n"
     }

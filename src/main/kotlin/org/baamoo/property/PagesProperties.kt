@@ -11,5 +11,5 @@ import org.springframework.validation.annotation.Validated
 @ConfigurationProperties("pages")
 data class PagesProperties(
     @field:NotNull
-    val pageGraph: Map<PageType, Map<String, String>>,
+    val pageButtons: Map<PageType, Map<String, String>>,
 )

@@ -6,6 +6,7 @@ import org.baamoo.model.FeatureType
 import org.baamoo.model.FeatureType.CREATE_REMINDER
 import org.baamoo.model.PageType
 import org.baamoo.model.PageType.REMINDER
+import org.baamoo.model.PageType.REMINDERS_LIST
 import org.baamoo.repository.Reminder
 import org.baamoo.repository.ReminderRepository
 import org.baamoo.repository.State
@@ -39,11 +40,11 @@ class ReminderPage(
 
         if (isPage(updateData)) {
             when(PageType.valueOf(updateData)) {
+//                REMINDERS_LIST -> pageProducer.open(update, REMINDERS_LIST)
                 else -> {}
             }
         } else {
             when(FeatureType.valueOf(updateData)) {
-//                REMINDERS_LIST -> pageProducer.open(update, REMINDERS_LIST)
                 CREATE_REMINDER -> pageProducer.open(update, CREATE_REMINDER)
                 else -> {}
             }
