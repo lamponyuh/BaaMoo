@@ -9,8 +9,8 @@ import org.baamoo.service.update.UpdateType
 
 class CallbackQueryUpdate(
     private val update: Update,
-    private val updateExecutor: UpdateExecutor,
-    private val updateType: UpdateType
+    updateExecutor: UpdateExecutor,
+    updateType: UpdateType
 ) : AbstractUpdate(update, updateExecutor, updateType) {
 
     override suspend fun getUser(): User {

@@ -9,8 +9,8 @@ import com.pengrad.telegrambot.request.EditMessageText
 import com.pengrad.telegrambot.request.SendMessage
 import org.baamoo.model.FeatureType
 import org.baamoo.model.PageType
-import org.baamoo.property.FeaturesProperties
-import org.baamoo.property.PagesProperties
+import org.baamoo.configuration.property.FeaturesProperties
+import org.baamoo.configuration.property.PagesProperties
 import org.baamoo.service.update.AbstractUpdate
 import org.springframework.stereotype.Service
 

@@ -12,20 +12,20 @@ import java.time.LocalDateTime
 @Service
 class SessionProcessor(
     private val userSessionRepository: UserSessionRepository,
-    private val pageProducer: PageProducer
+    private val pageProducer: PageProducer,
 ) {
 
     suspend fun clearExpiredSessions() {
         val expiredSessions = userSessionRepository.findAllByExpiredTimeBefore(LocalDateTime.now())
             .filter { it.sessionMessageId != null }
             .filter { it.state.page != MAIN }
-        expiredSessions.toList().forEach{
+        expiredSessions.toList().forEach {
             pageProducer.editPage(it.userId, it.sessionMessageId!!, MAIN, TEXT)
             userSessionRepository.save(it.copy(state = State(MAIN)))
         }
     }
 
-    companion object{
+    private companion object {
         const val TEXT = "Тебя долго не было, поэтому я вернулся на главную, чтобы тебе было проще работать. Что теперь хочешь сделать?"
     }
 }

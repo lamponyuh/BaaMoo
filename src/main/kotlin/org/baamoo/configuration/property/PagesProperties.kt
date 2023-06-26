@@ -1,6 +1,6 @@
-package org.baamoo.property
+package org.baamoo.configuration.property
 
-import org.baamoo.model.FeatureType
+import org.baamoo.model.PageType
 import javax.validation.constraints.NotNull
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
@@ -8,8 +8,8 @@ import org.springframework.validation.annotation.Validated
 
 @Validated
 @ConstructorBinding
-@ConfigurationProperties("features")
-data class FeaturesProperties(
+@ConfigurationProperties("pages")
+data class PagesProperties(
     @field:NotNull
-    val featuresButtons: Map<FeatureType, Map<Int, Map<String, String>>>,
+    val pageButtons: Map<PageType, Map<String, String>>,
 )

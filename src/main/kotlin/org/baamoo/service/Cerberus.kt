@@ -1,6 +1,6 @@
 package org.baamoo.service
 
-import org.baamoo.property.CerberusProperties
+import org.baamoo.configuration.property.CerberusProperties
 import org.baamoo.repository.UserSession
 import org.baamoo.repository.UserSessionRepository
 import org.baamoo.service.page.PageProducer

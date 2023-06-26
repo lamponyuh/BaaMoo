@@ -1,4 +1,4 @@
-package org.baamoo.property
+package org.baamoo.configuration.property
 
 import javax.validation.constraints.NotNull
 import org.springframework.boot.context.properties.ConfigurationProperties

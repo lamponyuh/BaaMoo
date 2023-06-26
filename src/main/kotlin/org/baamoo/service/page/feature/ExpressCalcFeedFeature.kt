@@ -157,7 +157,7 @@ class ExpressCalcFeedFeature(
     }
 
     private fun assertFields(price: Double, amount: Double, name: String) {
-        if (price < 1 || amount < 1) throw IllegalArgumentException()
+        if (price <= 0 || amount <= 0) throw IllegalArgumentException()
         if (name.isBlank()) throw IllegalArgumentException()
     }
 

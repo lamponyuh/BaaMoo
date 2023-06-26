@@ -1,7 +1,7 @@
 package org.baamoo.configuration
 
 import com.pengrad.telegrambot.TelegramBot
-import org.baamoo.property.TelegramProperties
+import org.baamoo.configuration.property.TelegramProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 

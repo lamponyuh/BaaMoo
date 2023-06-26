@@ -1,4 +1,4 @@
-package org.baamoo.property
+package org.baamoo.configuration.property
 
 import org.baamoo.model.FeatureType
 import org.baamoo.model.PageType

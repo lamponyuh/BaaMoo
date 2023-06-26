@@ -6,20 +6,14 @@ import kotlinx.coroutines.*
 
 @Service
 class Scheduler(
-    private val sessionProcessor : SessionProcessor,
-    private val processor: Processor,
-){
+    private val sessionProcessor: SessionProcessor,
+) {
     @Scheduled(fixedDelay = TEN_MINUTES)
     fun scheduleClearSessionsTask() = runBlocking {
         launch { sessionProcessor.clearExpiredSessions() }
     }
 
-//    @Scheduled(fixedDelay = 1000)
-//    fun scheduleClearSessionsTask2() = runBlocking {
-//        launch { processor.process() }
-//    }
-
-    companion object{
+    private companion object {
         const val TEN_MINUTES = 600000L
     }
 }
